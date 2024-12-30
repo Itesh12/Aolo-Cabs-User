@@ -318,7 +318,7 @@ Map<String, dynamic> languages = {
     "text_choose_payment": "Choose Payment Method",
     "text_rental_ride": "Rental Ride",
     "text_regular": "Regular",
-    "text_ride_type": "Package Name",
+    "text_ride_type": "com.aolocabs.user",
     "text_referral_code": "please enter valid referral code",
     "text_arrive_eta": "Driver arrives in",
     "text_email_validation": "Please enter valid email address",

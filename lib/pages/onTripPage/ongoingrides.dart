@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:users/pages/loadingPage/loading.dart';
+import 'package:users/pages/onTripPage/booking_confirmation.dart';
+import 'package:users/pages/onTripPage/map_page.dart';
+import 'package:users/styles/styles.dart';
+import 'package:users/translations/translation.dart';
+import 'package:users/widgets/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../functions/functions.dart';
-import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import '../loadingPage/loading.dart';
-import 'booking_confirmation.dart';
-import 'map_page.dart';
 
 class OnGoingRides extends StatefulWidget {
   const OnGoingRides({super.key});

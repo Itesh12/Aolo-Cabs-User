@@ -1,3 +1,16 @@
+//buildscript {
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//    dependencies {
+        // START: FlutterFire Configuration
+//        classpath 'com.google.gms:google-services:4.3.15'
+        // END: FlutterFire Configuration
+//        classpath 'com.android.tools.build:gradle:8.4.0'
+//    }
+//}
+//
 //allprojects {
 //    repositories {
 //        google()
@@ -5,70 +18,103 @@
 //    }
 //}
 //
-//rootProject.buildDir = "../build"
+//rootProject.buildDir = '../build'
+//subprojects {
+//    afterEvaluate { project ->
+//        if (project.extensions.findByName("android") != null) {
+//            Integer pluginCompileSdk = project.android.compileSdk
+//            if (pluginCompileSdk != null && pluginCompileSdk < 34) {
+//                project.logger.error(
+//                        "Warning: Overriding compileSdk version in Flutter plugin: "
+//                                + project.name
+//                                + " from "
+//                                + pluginCompileSdk
+//                                + " to 34 (to work around https://issuetracker.google.com/issues/199180389)."
+//                                + "\nIf there is not a new version of " + project.name + ", consider filing an issue against "
+//                                + project.name
+//                                + " to increase their compileSdk to the latest (otherwise try updating to the latest version)."
+//                )
+//                project.android {
+//                    compileSdk 34
+//                }
+//            }
+//        }
+//    }
+//}
 //subprojects {
 //    project.buildDir = "${rootProject.buildDir}/${project.name}"
 //}
 //subprojects {
-//    project.evaluationDependsOn(":app")
+//    project.evaluationDependsOn(':app')
 //}
 //
 //tasks.register("clean", Delete) {
 //    delete rootProject.buildDir
 //}
 
-
 buildscript {
-    ext.kotlin_version = '1.9.10'
     repositories {
         google()
         mavenCentral()
     }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:8.4.0'
         classpath 'com.google.gms:google-services:4.3.15'
     }
 }
 
+
 allprojects {
     repositories {
         google()
-        mavenCentral()
+        mavenCentral()// Maven Central repository
+        jcenter()
+
+        maven { url 'https://jitpack.io' }
+//        maven {
+//            url  "https://phonepe.mycloudrepo.io/public/repositories/phonepe-intentsdk-android"
+//        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << '-Xlint:-options'
+    }
+    configurations.all {
+        exclude group:"io.agora.rtc", module:"full-screen-sharing"
+        exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
+        exclude group: 'androidx.core', module: 'core-ktx'
     }
 }
 
 rootProject.buildDir = '../build'
 subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
     afterEvaluate { project ->
-        if (project.extensions.findByName("android") != null) {
-            Integer pluginCompileSdk = project.android.compileSdk
-            if (pluginCompileSdk != null && pluginCompileSdk < 34) {
-                project.logger.error(
-                        "Warning: Overriding compileSdk version in Flutter plugin: "
-                                + project.name
-                                + " from "
-                                + pluginCompileSdk
-                                + " to 34 (to work around https://issuetracker.google.com/issues/199180389)."
-                                + "\nIf there is not a new version of " + project.name + ", consider filing an issue against "
-                                + project.name
-                                + " to increase their compileSdk to the latest (otherwise try updating to the latest version)."
-                )
-                project.android {
-                    compileSdk 34
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
                 }
             }
         }
     }
 }
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    afterEvaluate{
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+                kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
+            } else {
+                kotlinOptions.jvmTarget = sourceCompatibility
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')
 }
-
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

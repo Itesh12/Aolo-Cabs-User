@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -22,7 +24,6 @@ class _SettingsPageState extends State<SettingsPage> {
   navigateLogout() {
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushAndRemoveUntil(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const Login()),
           (route) => false);

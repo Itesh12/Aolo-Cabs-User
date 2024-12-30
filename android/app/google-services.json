@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "473902429159",
+    "firebase_url": "https://aolo-cabs-default-rtdb.firebaseio.com",
+    "project_id": "aolo-cabs",
+    "storage_bucket": "aolo-cabs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473902429159:android:735021f23168b6b53b8342",
+        "android_client_info": {
+          "package_name": "com.aolocabs.user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1RTL67E6Ve7dR0lI16ZDw8WKDs0DKlak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,6 +6,8 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:users/functions/notifications.dart';
+import 'package:users/translations/translation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -27,11 +29,9 @@ import '../pages/onTripPage/map_page.dart';
 import '../pages/onTripPage/review_page.dart';
 import '../pages/referralcode/referral_code.dart';
 import '../styles/styles.dart';
-import '../translations/translation.dart';
-import 'notifications.dart';
 
 //languages code
-dynamic phcode;
+dynamic phcode = '+91';
 dynamic platform;
 dynamic pref;
 String isActive = '';
@@ -40,14 +40,15 @@ var audio = 'audio/notification_sound.mp3';
 bool internet = true;
 int waitingTime = 0;
 String gender = '';
-String packageName = '';
+String packageName = 'com.aolocabs.user';
 String signKey = '';
 
 //base url
-//base url
-String url = 'base url'; //add '/' at the end of the url as 'https://url.com/'
-String mapkey =
-    (platform == TargetPlatform.android) ? 'android map key' : 'ios map key';
+String url =
+    'https://app.aolocabs.com/'; //add '/' at the end of the url as 'https://url.com/'
+String mapkey = (platform == TargetPlatform.android)
+    ? 'AIzaSyC1LW5CzDguBt35OmfGe5qwXad9wFOdGSY'
+    : 'ios map key';
 
 String mapType = '';
 
@@ -409,7 +410,9 @@ registerUser() async {
   bearerToken.clear();
   dynamic result;
   try {
-    var token = await FirebaseMessaging.instance.getToken();
+    var token = (platform == TargetPlatform.android)
+        ? await FirebaseMessaging.instance.getToken()
+        : await FirebaseMessaging.instance.getAPNSToken();
     var fcm = token.toString();
     final response =
         http.MultipartRequest('POST', Uri.parse('${url}api/v1/user/register'));
@@ -659,7 +662,9 @@ userLogin(number, login, password, isOtp) async {
   bearerToken.clear();
   dynamic result;
   try {
-    var token = await FirebaseMessaging.instance.getToken();
+    var token = (platform == TargetPlatform.android)
+        ? await FirebaseMessaging.instance.getToken()
+        : await FirebaseMessaging.instance.getAPNSToken();
     var fcm = token.toString();
     var response = await http.post(Uri.parse('${url}api/v1/user/login'),
         headers: {
@@ -752,7 +757,6 @@ getUserDetails({id}) async {
     if (response.statusCode == 200) {
       userDetails =
           Map<String, dynamic>.from(jsonDecode(response.body)['data']);
-      // printWrapped(response.body);
 
       favAddress = userDetails['favouriteLocations']['data'];
       sosData = userDetails['sos']['data'];
@@ -1079,6 +1083,7 @@ geoCoding(double lat, double lng) async {
             'https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json'),
       );
     }
+
     if (val.statusCode == 200) {
       if (mapType == 'google') {
         result = jsonDecode(val.body)['results'][0]['formatted_address'];
@@ -1147,36 +1152,43 @@ getAutocomplete(input, sessionToken, lat, lng) async {
     addAutoFill.clear();
     if (mapType == 'google') {
       http.Response val;
-      if (Platform.isAndroid) {
-        val = await http.get(
-            Uri.parse(
-                'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$mapkey&location=$lat%2C$lng&radius=10000&sessionToken=$sessionToken'),
-            headers: {
-              'X-Android-Package': packageName,
-              'X-Android-Cert': signKey
-            });
-      } else {
-        val = await http.get(
-            Uri.parse(
-                'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$mapkey&location=$lat%2C$lng&radius=10000&sessionToken=$sessionToken'),
-            headers: {'X-IOS-Bundle-Identifier': packageName});
-      }
-
+      var requestBody = {
+        "input": input,
+        "locationBias": {
+          "circle": {
+            "center": {"latitude": lat, "longitude": lng},
+            "radius": 10000,
+          }
+        },
+        "sessionToken": sessionToken
+      };
+      val = await http.post(
+        Uri.parse('https://places.googleapis.com/v1/places:autocomplete'),
+        body: jsonEncode(requestBody),
+        headers: {
+          'X-Goog-Api-Key': mapkey,
+          'Content-Type': 'application/json',
+          if (Platform.isAndroid) 'X-Android-Package': packageName,
+          if (Platform.isAndroid) 'X-Android-Cert': signKey,
+          if (Platform.isIOS) 'X-IOS-Bundle-Identifier': packageName,
+        },
+      );
       if (val.statusCode == 200) {
         var result = jsonDecode(val.body);
-        for (var element in result['predictions']) {
+        for (var element in result['suggestions']) {
           addAutoFill.add({
-            'place': element['place_id'],
-            'description': element['description'],
+            'place': element['placePrediction']['placeId'],
+            'description': element['placePrediction']['text']['text'],
             'lat': '',
             'lon': ''
           });
           if (storedAutoAddress
-              .where((element) => element['place'] == element['place_id'])
+              .where((elements) =>
+                  elements['place'] == element['placePrediction']['placeId'])
               .isEmpty) {
             storedAutoAddress.add({
-              'place': element['place_id'],
-              'description': element['description'],
+              'place': element['placePrediction']['placeId'],
+              'description': element['placePrediction']['text']['text'],
               'lat': '',
               'lon': ''
             });
@@ -1192,7 +1204,6 @@ getAutocomplete(input, sessionToken, lat, lng) async {
         addAutoFill.add({
           'place': element['place_id'],
           'description': element['display_name'],
-          'secondary': '',
           'lat': element['lat'],
           'lon': element['lon']
         });
@@ -1267,6 +1278,7 @@ getPolylines(plat, plng, dlat, dlng) async {
   String pickLat = '';
   String pickLng = '';
   String dropLat = '';
+  List intermediates = [];
 
   String dropLng = '';
   if (plat == '' && dlat == '') {
@@ -1280,25 +1292,60 @@ getPolylines(plat, plng, dlat, dlng) async {
         dropLng = addressList[i].latlng.longitude.toString();
         try {
           http.Response value;
+          // value = await http.get(
+          //     Uri.parse(
+          //         'https://maps.googleapis.com/maps/api/directions/json?origin=$pickLat%2C$pickLng&destination=$dropLat%2C$dropLng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+          //     headers: {
+          //       'X-Android-Package': packageName,
+          //       'X-Android-Cert': signKey
+          //     });
+          var requestBody = {
+            "origin": {
+              "location": {
+                "latLng": {"latitude": pickLat, "longitude": pickLng}
+              }
+            },
+            "destination": {
+              "location": {
+                "latLng": {"latitude": dropLat, "longitude": dropLng}
+              }
+            },
+            // Assuming you need intermediates if applicable
+            "intermediates":
+                intermediates, // Provide intermediates or an empty list
+            "travelMode": "DRIVE",
+            "routingPreference": "TRAFFIC_AWARE",
+            "computeAlternativeRoutes": false,
+            "routeModifiers": {
+              "avoidTolls": false,
+              "avoidHighways": false,
+              "avoidFerries": false
+            },
+            "languageCode": "en-US",
+            "units": "IMPERIAL"
+          };
 
-          if (Platform.isAndroid) {
-            value = await http.get(
-                Uri.parse(
-                    'https://maps.googleapis.com/maps/api/directions/json?origin=$pickLat%2C$pickLng&destination=$dropLat%2C$dropLng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
-                headers: {
-                  'X-Android-Package': packageName,
-                  'X-Android-Cert': signKey
-                });
-          } else {
-            value = await http.get(
-                Uri.parse(
-                    'https://maps.googleapis.com/maps/api/directions/json?origin=$pickLat%2C$pickLng&destination=$dropLat%2C$dropLng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
-                headers: {'X-IOS-Bundle-Identifier': packageName});
-          }
+          // Sending the POST request
+          value = await http.post(
+            Uri.parse(
+                'https://routes.googleapis.com/directions/v2:computeRoutes'),
+            body: jsonEncode(requestBody), // Convert the Map to JSON
+            headers: {
+              'X-Goog-Api-Key': mapkey,
+              'Content-Type': 'application/json',
+              'X-Goog-FieldMask':
+                  'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+              if (Platform.isAndroid) 'X-Android-Package': packageName,
+              if (Platform.isAndroid) 'X-Android-Cert': signKey,
+              if (Platform.isIOS) 'X-IOS-Bundle-Identifier': packageName,
+            },
+          );
 
           if (value.statusCode == 200) {
-            var steps = jsonDecode(value.body)['routes'][0]['overview_polyline']
-                ['points'];
+            // var steps = jsonDecode(value.body)['routes'][0]['overview_polyline']
+            //     ['points'];
+            var steps = jsonDecode(value.body)['routes'][0]['polyline']
+                ['encodedPolyline'];
             if (i == 1) {
               polyString = steps;
             } else {
@@ -1322,25 +1369,66 @@ getPolylines(plat, plng, dlat, dlng) async {
     try {
       http.Response value;
 
-      if (Platform.isAndroid) {
-        value = await http.get(
-            Uri.parse(
-                'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
-            headers: {
-              'X-Android-Package': packageName,
-              'X-Android-Cert': signKey
-            });
-      } else {
-        value = await http.get(
-            Uri.parse(
-                'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
-            headers: {'X-IOS-Bundle-Identifier': packageName});
-      }
-      if (value.statusCode == 200) {
-        var steps =
-            jsonDecode(value.body)['routes'][0]['overview_polyline']['points'];
+      var requestBody = {
+        "origin": {
+          "location": {
+            "latLng": {"latitude": pickLat, "longitude": pickLng}
+          }
+        },
+        "destination": {
+          "location": {
+            "latLng": {"latitude": dropLat, "longitude": dropLng}
+          }
+        },
+        // Assuming you need intermediates if applicable
+        "intermediates":
+            intermediates, // Provide intermediates or an empty list
+        "travelMode": "DRIVE",
+        "routingPreference": "TRAFFIC_AWARE",
+        "computeAlternativeRoutes": false,
+        "routeModifiers": {
+          "avoidTolls": false,
+          "avoidHighways": false,
+          "avoidFerries": false
+        },
+        "languageCode": "en-US",
+        "units": "IMPERIAL"
+      };
 
-        // printWrapped(steps.toString());
+      // Sending the POST request
+      value = await http.post(
+        Uri.parse('https://routes.googleapis.com/directions/v2:computeRoutes'),
+        body: jsonEncode(requestBody), // Convert the Map to JSON
+        headers: {
+          'X-Goog-Api-Key': mapkey,
+          'Content-Type': 'application/json',
+          'X-Goog-FieldMask':
+              'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+          if (Platform.isAndroid) 'X-Android-Package': packageName,
+          if (Platform.isAndroid) 'X-Android-Cert': signKey,
+          if (Platform.isIOS) 'X-IOS-Bundle-Identifier': packageName,
+        },
+      );
+
+      // if (Platform.isAndroid) {
+      //   value = await http.get(
+      //       Uri.parse(
+      //           'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+      //       headers: {
+      //         'X-Android-Package': packageName,
+      //         'X-Android-Cert': signKey
+      //       });
+      // } else {
+      //   value = await http.get(
+      //       Uri.parse(
+      //           'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+      //       headers: {'X-IOS-Bundle-Identifier': packageName});
+      // }
+      if (value.statusCode == 200) {
+        // var steps =
+        //     jsonDecode(value.body)['routes'][0]['overview_polyline']['points'];
+        var steps =
+            jsonDecode(value.body)['routes'][0]['polyline']['encodedPolyline'];
         polyString = steps;
         decodeEncodedPolyline(steps);
       } else {}
@@ -1353,6 +1441,173 @@ getPolylines(plat, plng, dlat, dlng) async {
   polyGot = false;
   return polyList;
 }
+
+// getPolylines(plat, plng, dlat, dlng) async {
+//   polyList.clear();
+//   String pickLat = '';
+//   String pickLng = '';
+//   String dropLat = '';
+//   List intermediates = [];
+
+//   String dropLng = '';
+//   if (plat == '' && dlat == '') {
+//     if (userRequestData.isEmpty ||
+//         userRequestData['poly_line'] == null ||
+//         userRequestData['poly_line'] == '') {
+//       for (var i = 1; i < addressList.length; i++) {
+//         pickLat = addressList[i - 1].latlng.latitude.toString();
+//         pickLng = addressList[i - 1].latlng.longitude.toString();
+//         dropLat = addressList[i].latlng.latitude.toString();
+//         dropLng = addressList[i].latlng.longitude.toString();
+//         try {
+//           http.Response value;
+
+//           // if (Platform.isAndroid) {
+//             // value = await http.get(
+//             //     Uri.parse(
+//             //         'https://maps.googleapis.com/maps/api/directions/json?origin=$pickLat%2C$pickLng&destination=$dropLat%2C$dropLng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+//             //     headers: {
+//             //       'X-Android-Package': packageName,
+//             //       'X-Android-Cert': signKey
+//             //     });
+//             value = await http.post(Uri.parse('https://routes.googleapis.com/directions/v2:computeRoutes'),
+//             body: {
+//             "origin": {
+//               "location":{
+//                 "latLng": {"latitude": pickLat, "longitude": pickLng}
+//               }
+//             },
+//             "destination": {
+//               "location":{
+//                 "latLng": {"latitude": dropLat, "longitude": dropLng}
+//               }
+//             },
+//             "intermediates": intermediates,
+//             "travelMode": "DRIVE",
+//             "routingPreference": "TRAFFIC_AWARE",
+//             "computeAlternativeRoutes": false,
+//             "routeModifiers": {
+//               "avoidTolls": false,
+//               "avoidHighways": false,
+//               "avoidFerries": false
+//             },
+//             "languageCode": "en-US",
+//             "units": "IMPERIAL"
+//           },
+//           headers: {
+//             'X-Goog-Api-Key': mapkey,
+//             'Content-Type': 'application/json',
+//             'X-Goog-FieldMask':
+//                 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+//             if (Platform.isAndroid) 'X-Android-Package': packageName,
+//             if (Platform.isAndroid) 'X-Android-Cert': signKey,
+//             if (Platform.isIOS) 'X-IOS-Bundle-Identifier': packageName,
+//           },);
+//           // } else {
+//           //   value = await http.get(
+//           //       Uri.parse(
+//           //           'https://maps.googleapis.com/maps/api/directions/json?origin=$pickLat%2C$pickLng&destination=$dropLat%2C$dropLng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+//           //       headers: {'X-IOS-Bundle-Identifier': packageName});
+//           // }
+
+//           if (value.statusCode == 200) {
+//             printWrapped(value.body.toString());
+//             // var steps = jsonDecode(value.body)['routes'][0]['overview_polyline']
+//             //     ['points'];
+//             var steps =jsonDecode(value.body)['routes'][0]['polyline']['encodedPolyline'];
+//             printWrapped(steps.toString());
+//             if (i == 1) {
+//               polyString = steps;
+//             } else {
+//               polyString = '${polyString}poly$steps';
+//             }
+//             decodeEncodedPolyline(steps);
+//           } else {
+//             printWrapped(jsonDecode(value.body).toString());
+//           }
+//         } catch (e) {
+//           printWrapped(e.toString());
+//           if (e is SocketException) {
+//             internet = false;
+//           }
+//         }
+//       }
+//     } else {
+//       List poly = userRequestData['poly_line'].toString().split('poly');
+//       for (var i = 0; i < poly.length; i++) {
+//         decodeEncodedPolyline(poly[i]);
+//       }
+//     }
+//   } else {
+//     try {
+//       http.Response value;
+//       value = await http.post(Uri.parse('https://routes.googleapis.com/directions/v2:computeRoutes'),
+//             body: {
+//             "origin": {
+//               "location":{
+//                 "latLng": {"latitude": pickLat, "longitude": pickLng}
+//               }
+//             },
+//             "destination": {
+//               "location":{
+//                 "latLng": {"latitude": dropLat, "longitude": dropLng}
+//               }
+//             },
+//             "intermediates": intermediates,
+//             "travelMode": "DRIVE",
+//             "routingPreference": "TRAFFIC_AWARE",
+//             "computeAlternativeRoutes": false,
+//             "routeModifiers": {
+//               "avoidTolls": false,
+//               "avoidHighways": false,
+//               "avoidFerries": false
+//             },
+//             "languageCode": "en-US",
+//             "units": "IMPERIAL"
+//           },
+//           headers: {
+//             'X-Goog-Api-Key': mapkey,
+//             'Content-Type': 'application/json',
+//             'X-Goog-FieldMask':
+//                 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
+//             if (Platform.isAndroid) 'X-Android-Package': packageName,
+//             if (Platform.isAndroid) 'X-Android-Cert': signKey,
+//             if (Platform.isIOS) 'X-IOS-Bundle-Identifier': packageName,
+//           },);
+
+//       // if (Platform.isAndroid) {
+//       //   value = await http.get(
+//       //       Uri.parse(
+//       //           'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+//       //       headers: {
+//       //         'X-Android-Package': packageName,
+//       //         'X-Android-Cert': signKey
+//       //       });
+//       // } else {
+//       //   value = await http.get(
+//       //       Uri.parse(
+//       //           'https://maps.googleapis.com/maps/api/directions/json?origin=$plat%2C$plng&destination=$dlat%2C$dlng&avoid=ferries|indoor&alternatives=true&mode=driving&key=$mapkey'),
+//       //       headers: {'X-IOS-Bundle-Identifier': packageName});
+//       // }
+//       if (value.statusCode == 200) {
+//         printWrapped(jsonDecode(value.body).toString());
+//         // var steps =
+//         //     jsonDecode(value.body)['routes'][0]['overview_polyline']['points'];
+//         var steps =jsonDecode(value.body)['routes'][0]['polyline']['encodedPolyline'];
+
+//         // printWrapped(steps.toString());
+//         polyString = steps;
+//         decodeEncodedPolyline(steps);
+//       } else {}
+//     } catch (e) {
+//       if (e is SocketException) {
+//         internet = false;
+//       }
+//     }
+//   }
+//   polyGot = false;
+//   return polyList;
+// }
 
 class RouteInfo {
   final int distance;
@@ -1766,7 +2021,6 @@ rentalEta() async {
       choosenVehicle = 0;
       result = true;
       valueNotifierBook.incrementNotifier();
-      // printWrapped('rental eta ' + response.body);
     } else if (response.statusCode == 401) {
       result = 'logout';
     } else {

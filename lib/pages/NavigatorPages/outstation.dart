@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: use_build_context_synchronously
 
-import '../../functions/functions.dart';
-import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import '../loadingPage/loading.dart';
-import '../login/login.dart';
-import '../onTripPage/booking_confirmation.dart';
-import 'historyoutstationdetails.dart';
+import 'package:flutter/material.dart';
+import 'package:users/functions/functions.dart';
+import 'package:users/pages/NavigatorPages/historyoutstationdetails.dart';
+import 'package:users/pages/loadingPage/loading.dart';
+import 'package:users/pages/login/login.dart';
+import 'package:users/pages/onTripPage/booking_confirmation.dart';
+import 'package:users/styles/styles.dart';
+import 'package:users/translations/translation.dart';
+import 'package:users/widgets/widgets.dart';
 
 class OutStationRides extends StatefulWidget {
   const OutStationRides({super.key});
@@ -61,7 +62,6 @@ class _OutStationRidesState extends State<OutStationRides> {
   navigateLogout() {
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushAndRemoveUntil(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const Login()),
           (route) => false);

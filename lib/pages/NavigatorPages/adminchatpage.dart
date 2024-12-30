@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../functions/functions.dart';
@@ -47,7 +49,6 @@ class _AdminChatPageState extends State<AdminChatPage> {
     var media = MediaQuery.of(context).size;
     return PopScope(
         canPop: true,
-        // ignore: deprecated_member_use
         onPopInvoked: (didPop) {
           unSeenChatCount = '0';
           if (chatid != null) {
@@ -233,28 +234,31 @@ class _AdminChatPageState extends State<AdminChatPage> {
                                                                   userDetails[
                                                                           'id']
                                                                       .toString())
-                                                              ? buttonColor
+                                                              ? (isDarkTheme ==
+                                                                      true)
+                                                                  ? const Color(
+                                                                      0xffE7EDEF)
+                                                                  : Colors.black
                                                               : const Color(
                                                                   0xffE7EDEF)),
                                                       child: MyText(
-                                                          text: adminChatList[i]
-                                                              ['message'],
-                                                          size: media.width *
-                                                              fourteen,
-                                                          color: (isDarkTheme ==
-                                                                  true)
-                                                              ? Colors.black
-                                                              // : textColor,
-                                                              : (adminChatList[i]
-                                                                              [
-                                                                              'from_id']
-                                                                          .toString() ==
-                                                                      userDetails[
-                                                                              'id']
-                                                                          .toString())
-                                                                  ? Colors.white
-                                                                  : Colors
-                                                                      .black),
+                                                        text: adminChatList[i]
+                                                            ['message'],
+                                                        size: media.width *
+                                                            fourteen,
+                                                        color: (adminChatList[i]
+                                                                        [
+                                                                        'from_id']
+                                                                    .toString() ==
+                                                                userDetails[
+                                                                        'user_id']
+                                                                    .toString())
+                                                            ? (isDarkTheme ==
+                                                                    true)
+                                                                ? Colors.black
+                                                                : Colors.white
+                                                            : Colors.black,
+                                                      ),
                                                     ),
                                                   ),
                                                   SizedBox(

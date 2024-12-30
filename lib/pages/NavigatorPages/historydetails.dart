@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:users/translations/translation.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
-import '../../translations/translation.dart';
 import '../../widgets/widgets.dart';
 import '../loadingPage/loading.dart';
 import '../noInternet/nointernet.dart';

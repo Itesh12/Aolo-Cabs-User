@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:users/pages/onTripPage/bookingwidgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -29,7 +30,6 @@ import '../chatPage/chat_page.dart';
 import '../loadingPage/loading.dart';
 import '../login/login.dart';
 import '../noInternet/noInternet.dart';
-import 'bookingwidgets.dart';
 import 'choosegoods.dart';
 import 'drop_loc_select.dart';
 import 'invoice.dart';
@@ -72,6 +72,8 @@ bool isLoading = false;
 List<fmlt.LatLng> fmpoly = [];
 dynamic addLuggagePreferences;
 dynamic addPetPreferences;
+bool dropConfirmed = false;
+bool chooseGoodsTypes = false;
 
 TextEditingController promoKey = TextEditingController();
 
@@ -114,7 +116,6 @@ class _BookingConfirmationState extends State<BookingConfirmation>
   bool _dateTimePicker = false;
   bool showSos = false;
   bool notifyCompleted = false;
-  bool _chooseGoodsType = false;
   dynamic _showInfoInt;
   dynamic _dist;
   bool _editUserDetails = false;
@@ -129,7 +130,6 @@ class _BookingConfirmationState extends State<BookingConfirmation>
   final _mapMarkerSC = StreamController<List<Marker>>();
   StreamSink<List<Marker>> get _mapMarkerSink => _mapMarkerSC.sink;
   Stream<List<Marker>> get mapMarkerStream => _mapMarkerSC.stream;
-  bool dropConfirmed = false;
 
   bool isOneWayTrip = true;
   bool isFromDate = true;
@@ -1763,7 +1763,11 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                                       fm.TileLayer(
                                                         // minZoom: 10,
                                                         urlTemplate:
-                                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                            // 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                            (isDarkTheme ==
+                                                                    false)
+                                                                ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                                                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
                                                         userAgentPackageName:
                                                             'com.example.app',
                                                       ),
@@ -2325,7 +2329,8 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                           tripReqError == false &&
                                           dropConfirmed == true &&
                                           lowWalletBalance == false)
-                                      ? (_chooseGoodsType == true ||
+                                      ? (chooseGoodsTypes == true ||
+                                              // _chooseGoodsType == true ||
                                               choosenTransportType == 0)
                                           ? Positioned(
                                               bottom: 0 +
@@ -7562,38 +7567,35 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                                                           crossAxisAlignment:
                                                                               CrossAxisAlignment.end,
                                                                           children: [
-                                                                            InkWell(
-                                                                              onTap: () {},
-                                                                              child: Row(
-                                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                                children: [
-                                                                                  (userRequestData['is_bid_ride'] == 1)
-                                                                                      ? MyText(
-                                                                                          textAlign: TextAlign.end,
-                                                                                          text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['accepted_ride_fare'].toString(),
-                                                                                          size: media.width * sixteen,
-                                                                                          fontweight: FontWeight.w500,
-                                                                                          color: textColor,
-                                                                                        )
-                                                                                      : (userRequestData['discounted_total'] != null)
-                                                                                          ? MyText(
-                                                                                              textAlign: TextAlign.end,
-                                                                                              text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['discounted_total'].toString(),
-                                                                                              size: media.width * sixteen,
-                                                                                              fontweight: FontWeight.w500,
-                                                                                              color: textColor,
-                                                                                              maxLines: 1,
-                                                                                            )
-                                                                                          : MyText(
-                                                                                              textAlign: TextAlign.end,
-                                                                                              text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['request_eta_amount'].toString(),
-                                                                                              size: media.width * sixteen,
-                                                                                              fontweight: FontWeight.w500,
-                                                                                              color: textColor,
-                                                                                              maxLines: 1,
-                                                                                            ),
-                                                                                ],
-                                                                              ),
+                                                                            Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                (userRequestData['is_bid_ride'] == 1)
+                                                                                    ? MyText(
+                                                                                        textAlign: TextAlign.end,
+                                                                                        text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['accepted_ride_fare'].toString(),
+                                                                                        size: media.width * sixteen,
+                                                                                        fontweight: FontWeight.w500,
+                                                                                        color: textColor,
+                                                                                      )
+                                                                                    : (userRequestData['discounted_total'] != null)
+                                                                                        ? MyText(
+                                                                                            textAlign: TextAlign.end,
+                                                                                            text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['discounted_total'].toString(),
+                                                                                            size: media.width * sixteen,
+                                                                                            fontweight: FontWeight.w500,
+                                                                                            color: textColor,
+                                                                                            maxLines: 1,
+                                                                                          )
+                                                                                        : MyText(
+                                                                                            textAlign: TextAlign.end,
+                                                                                            text: userRequestData['requested_currency_symbol'] + ' ' + userRequestData['request_eta_amount'].toString(),
+                                                                                            size: media.width * sixteen,
+                                                                                            fontweight: FontWeight.w500,
+                                                                                            color: textColor,
+                                                                                            maxLines: 1,
+                                                                                          ),
+                                                                              ],
                                                                             ),
                                                                           ],
                                                                         )
@@ -8690,10 +8692,12 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                       : Container(),
 
                                   //displaying address details for edit
-                                  ((_chooseGoodsType == false &&
-                                              userRequestData.isEmpty &&
-                                              addressList.isNotEmpty &&
-                                              choosenTransportType == 1) ||
+                                  ((
+                                              // _chooseGoodsType == false &&
+                                              chooseGoodsTypes == false &&
+                                                  userRequestData.isEmpty &&
+                                                  addressList.isNotEmpty &&
+                                                  choosenTransportType == 1) ||
                                           (dropConfirmed == false &&
                                               userRequestData.isEmpty))
                                       ? Positioned(
@@ -9195,7 +9199,9 @@ class _BookingConfirmationState extends State<BookingConfirmation>
                                                                 true;
                                                             selectedGoodsId =
                                                                 '';
-                                                            _chooseGoodsType =
+                                                            // _chooseGoodsType =
+                                                            //     true;
+                                                            chooseGoodsTypes =
                                                                 true;
                                                             isLoading = false;
                                                           });

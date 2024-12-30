@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:users/widgets/widgets.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
 import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
 
 class About extends StatefulWidget {
   const About({super.key});

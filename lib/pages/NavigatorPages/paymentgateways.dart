@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:users/functions/functions.dart';
 import 'package:users/pages/NavigatorPages/walletpage.dart';
+import 'package:users/pages/noInternet/nointernet.dart';
+import 'package:users/styles/styles.dart';
+import 'package:users/translations/translation.dart';
+import 'package:users/widgets/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import '../../functions/functions.dart';
-import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import '../noInternet/noInternet.dart';
 
 // ignore: must_be_immutable
 class PaymentGatwaysPage extends StatefulWidget {

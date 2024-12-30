@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
@@ -201,20 +203,17 @@ class _LoadingPageState extends State<LoadingPage> {
           if (val == '3') {
             navigate();
           } else if (choosenLanguage == '') {
-            // ignore: use_build_context_synchronously
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Languages()));
           } else if (val == '2') {
             Future.delayed(const Duration(seconds: 2), () {
               //login page
-              // ignore: use_build_context_synchronously
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => const Login()));
             });
           } else {
             Future.delayed(const Duration(seconds: 2), () {
               //choose language page
-              // ignore: use_build_context_synchronously
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => const Languages()));
             });
@@ -248,8 +247,8 @@ class _LoadingPageState extends State<LoadingPage> {
             Container(
               height: media.height * 1,
               width: media.width * 1,
-              decoration: const BoxDecoration(
-                color:  Color(0xffFFF506),
+              decoration: BoxDecoration(
+                color: backgroundColor,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -260,7 +259,8 @@ class _LoadingPageState extends State<LoadingPage> {
                     height: media.width * 0.5,
                     decoration: const BoxDecoration(
                         image: DecorationImage(
-                            image: AssetImage('assets/images/logo.png'),
+                            image:
+                                AssetImage('assets/images/aolocabs-logo.png'),
                             fit: BoxFit.contain)),
                   ),
                 ],

@@ -1,9 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:users/pages/login/login.dart';
+import 'package:users/translations/translation.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
-import '../../translations/translation.dart';
 import '../../widgets/widgets.dart';
-import '../login/login.dart';
 import '../noInternet/nointernet.dart';
 import 'historydetails.dart';
 
@@ -42,7 +44,6 @@ class _HistoryState extends State<History> {
     if (mounted) {
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pushAndRemoveUntil(
-            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(builder: (context) => const Login()),
             (route) => false);

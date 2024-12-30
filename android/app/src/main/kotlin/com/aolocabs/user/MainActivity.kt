@@ -1,5 +1,6 @@
-package com.aolo.users
+package com.aolocabs.user
 
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
 class MainActivity: FlutterActivity()

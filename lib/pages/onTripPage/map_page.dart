@@ -4,8 +4,8 @@ import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:users/pages/onTripPage/pick_loc_select.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:users/pages/onTripPage/ongoingrides.dart';
 import 'package:uuid/uuid.dart';
 import '../login/login.dart';
 import 'drop_loc_select.dart';
@@ -31,6 +31,7 @@ import 'package:vector_math/vector_math.dart' as vector;
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:users/pages/onTripPage/ongoingrides.dart';
 import 'package:permission_handler/permission_handler.dart' as perm;
 // ignore: depend_on_referenced_packages
 
@@ -48,6 +49,7 @@ String mapStyle = '';
 List myMarkers = [];
 Set<Marker> markers = {};
 String dropAddressConfirmation = '';
+String pickupAddressConfirmation = '';
 List<AddressList> addressList = <AddressList>[];
 dynamic favLat;
 dynamic favLng;
@@ -67,6 +69,8 @@ String transportType = 'Taxi';
 bool isOutStation = false;
 bool isRentalRide = false;
 String infoMessage = '';
+bool rideWithoutDestination = false;
+bool rentalRide = false;
 
 TextEditingController pickupAddressController = TextEditingController();
 TextEditingController dropAddressController = TextEditingController();
@@ -906,6 +910,9 @@ class _MapsState extends State<Maps>
                                                                           position) async {
                                                                     if (addressList
                                                                         .isEmpty) {
+                                                                      _centerLocation =
+                                                                          position
+                                                                              .target;
                                                                     } else {
                                                                       _centerLocation =
                                                                           position
@@ -952,7 +959,6 @@ class _MapsState extends State<Maps>
                                                                           });
                                                                           _lastCenter =
                                                                               _centerLocation;
-                                                                          // addToast();
                                                                         } else if (_pickaddress ==
                                                                             true) {
                                                                           setState(
@@ -972,8 +978,6 @@ class _MapsState extends State<Maps>
                                                                     } else if (userDetails[
                                                                             'enable_map_location_icon_drag_and_drop_feature'] ==
                                                                         '1') {
-                                                                      // if (addressList
-                                                                      //     .isEmpty) {
                                                                       var val = await geoCoding(
                                                                           _centerLocation
                                                                               .latitude,
@@ -1011,12 +1015,6 @@ class _MapsState extends State<Maps>
                                                                           false;
                                                                       setState(
                                                                           () {});
-                                                                      // }
-                                                                      // else {
-                                                                      //   print(
-                                                                      //       'fvkjnskdnvklsdnvklsdv');
-                                                                      //   // addToast();
-                                                                      // }
                                                                     }
                                                                   },
                                                                   //     {
@@ -1123,9 +1121,6 @@ class _MapsState extends State<Maps>
                                                                               ischanged = false;
                                                                             }
                                                                           }
-                                                                          // else {
-                                                                          //   addToast();
-                                                                          // }
                                                                           if (v.source ==
                                                                               fm.MapEventSource.dragEnd) {
                                                                             _centerLocation =
@@ -1136,7 +1131,6 @@ class _MapsState extends State<Maps>
                                                                               var val = await geoCoding(_centerLocation.latitude, _centerLocation.longitude);
                                                                               lowerLat = _centerLocation.latitude - (lat * 1.24);
                                                                               lowerLon = _centerLocation.longitude - (lon * 1.24);
-                                                                              // print(lowerLon.toString());
                                                                               greaterLat = _centerLocation.latitude + (lat * 1.24);
                                                                               greaterLon = _centerLocation.longitude + (lon * 1.24);
                                                                               lower = geo.encode(lowerLon, lowerLat);
@@ -1185,9 +1179,6 @@ class _MapsState extends State<Maps>
                                                                                 ischanged = false;
                                                                               }
                                                                             }
-                                                                            // else {
-                                                                            //   addToast();
-                                                                            // }
                                                                           }
                                                                         },
                                                                         // interactiveFlags: ~fm
@@ -1205,8 +1196,11 @@ class _MapsState extends State<Maps>
                                                                 children: [
                                                                   fm.TileLayer(
                                                                     // minZoom: 10,
-                                                                    urlTemplate:
-                                                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                                    urlTemplate: (isDarkTheme ==
+                                                                            false)
+                                                                        ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                                                        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                                                                    // subdomains: ['a', 'b', 'c', 'd'],
                                                                     userAgentPackageName:
                                                                         'com.example.app',
                                                                   ),
@@ -2121,23 +2115,29 @@ class _MapsState extends State<Maps>
                                                                                                   if (userDetails['enable_modules_for_applications'] == 'taxi') {
                                                                                                     choosenTransportType = 0;
                                                                                                     ismulitipleride = false;
-                                                                                                    Navigator.pushAndRemoveUntil(
-                                                                                                        context,
-                                                                                                        MaterialPageRoute(
-                                                                                                            builder: (context) => BookingConfirmation(
-                                                                                                                  type: 1,
-                                                                                                                )),
-                                                                                                        (route) => false);
+                                                                                                    // Navigator.pushAndRemoveUntil(
+                                                                                                    //     context,
+                                                                                                    //     MaterialPageRoute(
+                                                                                                    //         builder: (context) => BookingConfirmation(
+                                                                                                    //               type: 1,
+                                                                                                    //             )),
+                                                                                                    //     (route) => false);
+                                                                                                    rentalRide = true;
+                                                                                                    rideWithoutDestination = false;
+                                                                                                    Navigator.push(context, MaterialPageRoute(builder: (context) => PickupLocation()));
                                                                                                   } else if (userDetails['enable_modules_for_applications'] == 'delivery') {
                                                                                                     choosenTransportType = 1;
                                                                                                     ismulitipleride = false;
-                                                                                                    Navigator.pushAndRemoveUntil(
-                                                                                                        context,
-                                                                                                        MaterialPageRoute(
-                                                                                                            builder: (context) => BookingConfirmation(
-                                                                                                                  type: 1,
-                                                                                                                )),
-                                                                                                        (route) => false);
+                                                                                                    // Navigator.pushAndRemoveUntil(
+                                                                                                    //     context,
+                                                                                                    //     MaterialPageRoute(
+                                                                                                    //         builder: (context) => BookingConfirmation(
+                                                                                                    //               type: 1,
+                                                                                                    //             )),
+                                                                                                    //     (route) => false);
+                                                                                                    rentalRide = true;
+                                                                                                    rideWithoutDestination = false;
+                                                                                                    Navigator.push(context, MaterialPageRoute(builder: (context) => PickupLocation()));
                                                                                                   } else {
                                                                                                     if (choosenTransportType != 3) {
                                                                                                       setState(() {
@@ -2300,15 +2300,17 @@ class _MapsState extends State<Maps>
                                                                                           onTap: () {
                                                                                             ismulitipleride = false;
                                                                                             setState(() {
-                                                                                              Navigator.pushAndRemoveUntil(
-                                                                                                  context,
-                                                                                                  MaterialPageRoute(
-                                                                                                      builder: (context) => BookingConfirmation(
-                                                                                                            type: 2,
-                                                                                                          )),
-                                                                                                  (route) => false);
+                                                                                              // Navigator.pushAndRemoveUntil(
+                                                                                              //     context,
+                                                                                              //     MaterialPageRoute(
+                                                                                              //         builder: (context) => BookingConfirmation(
+                                                                                              //               type: 2,
+                                                                                              //             )),
+                                                                                              //     (route) => false);
+                                                                                              rideWithoutDestination = true;
+                                                                                              rentalRide = false;
+                                                                                              Navigator.push(context, MaterialPageRoute(builder: (context) => PickupLocation()));
                                                                                             });
-                                                                                            // printWrapped(recentSearchesList.toString());
                                                                                           },
                                                                                           child: Row(
                                                                                             children: [
@@ -2877,13 +2879,16 @@ class _MapsState extends State<Maps>
                                                                                                   ismulitipleride = false;
                                                                                                   // if (_dropaddress == true) {
                                                                                                   setState(() {
-                                                                                                    Navigator.pushAndRemoveUntil(
-                                                                                                        context,
-                                                                                                        MaterialPageRoute(
-                                                                                                            builder: (context) => BookingConfirmation(
-                                                                                                                  type: 2,
-                                                                                                                )),
-                                                                                                        (route) => false);
+                                                                                                    rideWithoutDestination = true;
+                                                                                                    rentalRide = false;
+                                                                                                    // Navigator.pushAndRemoveUntil(
+                                                                                                    //     context,
+                                                                                                    //     MaterialPageRoute(
+                                                                                                    //         builder: (context) => BookingConfirmation(
+                                                                                                    //               type: 2,
+                                                                                                    //             )),
+                                                                                                    //     (route) => false);
+                                                                                                    Navigator.push(context, MaterialPageRoute(builder: (context) => PickupLocation()));
                                                                                                   });
                                                                                                   // }
                                                                                                 },
@@ -2961,15 +2966,11 @@ class _MapsState extends State<Maps>
                                                                                                                       child: InkWell(
                                                                                                                         onTap: () async {
                                                                                                                           var val;
-                                                                                                                          // printWrapped('text oooooo ' + val.toString());
                                                                                                                           // if (mapType == 'google') {
                                                                                                                           if (addAutoFill[i]['lat'] == '' || addAutoFill[i]['lat'] == null) {
-                                                                                                                            // printWrapped('text yyyyyy ');
                                                                                                                             val = await geoCodingForLatLng(addAutoFill[i]['place'], _sessionToken);
                                                                                                                             _sessionToken = null;
-                                                                                                                            // printWrapped('text 1234567 val ' + val.toString());
                                                                                                                             lowerLat = _centerLocation.latitude - (lat * 1.24);
-                                                                                                                            // printWrapped('text kkkkkkkkkk ' + val.toString());
                                                                                                                           }
                                                                                                                           //   val = await geoCodingForLatLng(addAutoFill[i]['place']);
                                                                                                                           // }
@@ -3128,7 +3129,6 @@ class _MapsState extends State<Maps>
                                                                                               InkWell(
                                                                                                 onTap: () {
                                                                                                   setState(() {
-                                                                                                    // printWrapped('recentSearchesList ' + recentSearchesList.toString());
                                                                                                     if (addressList.where((element) => element.type == 'drop').isEmpty) {
                                                                                                       addressList.add(AddressList(id: '2', type: 'drop', address: recentSearchesList[i]['address'], pickup: false, latlng: LatLng(recentSearchesList[i]['latlng'][0], recentSearchesList[i]['latlng'][1])));
                                                                                                     } else {
@@ -4386,14 +4386,21 @@ class _MapsState extends State<Maps>
                                             isOutStation = false;
                                             choosenTransportType = 0;
                                             ismulitipleride = false;
-                                            Navigator.pushAndRemoveUntil(
+                                            // Navigator.pushAndRemoveUntil(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (context) =>
+                                            //             BookingConfirmation(
+                                            //               type: 1,
+                                            //             )),
+                                            //     (route) => false);
+                                            rentalRide = true;
+                                            rideWithoutDestination = false;
+                                            Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        BookingConfirmation(
-                                                          type: 1,
-                                                        )),
-                                                (route) => false);
+                                                        PickupLocation()));
                                           }
                                         } else {
                                           _height = media.height * 1;
@@ -4490,14 +4497,21 @@ class _MapsState extends State<Maps>
                                             choosenTransportType = 1;
                                             ismulitipleride = false;
                                             isOutStation = false;
-                                            Navigator.pushAndRemoveUntil(
+                                            // Navigator.pushAndRemoveUntil(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (context) =>
+                                            //             BookingConfirmation(
+                                            //               type: 1,
+                                            //             )),
+                                            //     (route) => false);
+                                            rentalRide = true;
+                                            rideWithoutDestination = false;
+                                            Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        BookingConfirmation(
-                                                          type: 1,
-                                                        )),
-                                                (route) => false);
+                                                        PickupLocation()));
                                           }
                                         } else {
                                           setState(() {
@@ -4592,24 +4606,6 @@ class _MapsState extends State<Maps>
                           ),
                         ),
                       ),
-                      // (_showtoast)
-                      //     ? Positioned(
-                      //         top: media.height * 0.5,
-                      //         left: media.width * 0.2,
-                      //         right: media.width * 0.2,
-                      //         child: Container(
-                      //           padding: EdgeInsets.all(media.width * 0.02),
-                      //           decoration: BoxDecoration(
-                      //               color: page,
-                      //               borderRadius: BorderRadius.circular(
-                      //                   media.width * 0.02)),
-                      //           child: MyText(
-                      //               textAlign: TextAlign.center,
-                      //               text: languages[choosenLanguage]
-                      //                   ['text_address_demo'],
-                      //               size: media.width * twelve),
-                      //         ))
-                      //     : Container(),
 
 //loader
                       (_loading == true || state == '')

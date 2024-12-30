@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:users/functions/functions.dart';
+import 'package:users/pages/loadingPage/loading.dart';
+import 'package:users/pages/onTripPage/drop_loc_select.dart';
+import 'package:users/styles/styles.dart';
+import 'package:users/translations/translation.dart';
+import 'package:users/widgets/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
-
-import '../../functions/functions.dart';
-import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import '../loadingPage/loading.dart';
-import '../onTripPage/drop_loc_select.dart';
 
 class FavAddressPage extends StatefulWidget {
   const FavAddressPage({super.key});

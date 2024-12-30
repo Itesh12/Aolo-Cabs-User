@@ -3,16 +3,15 @@ import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:users/functions/functions.dart';
+import 'package:users/pages/onTripPage/booking_confirmation.dart';
+import 'package:users/pages/onTripPage/choosegoods.dart';
+import 'package:users/pages/onTripPage/map_page.dart';
+import 'package:users/styles/styles.dart';
+import 'package:users/translations/translation.dart';
+import 'package:users/widgets/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-
-import '../../functions/functions.dart';
-import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import 'booking_confirmation.dart';
-import 'choosegoods.dart';
-import 'map_page.dart';
 
 class ApplyCouponsContainer extends StatefulWidget {
   final dynamic type;

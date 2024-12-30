@@ -1,12 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:users/pages/loadingPage/loading.dart';
+import 'package:users/pages/referralcode/referral_code.dart';
+import 'package:users/translations/translation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
-import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
-import '../loadingPage/loading.dart';
-import '../referralcode/referral_code.dart';
+import '../../widgets/widgets.dart'; 
 
 class AggreementPage extends StatefulWidget {
   const AggreementPage({super.key});

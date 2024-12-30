@@ -1,15 +1,17 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:users/pages/NavigatorPages/fav_address.dart';
+import 'package:users/pages/NavigatorPages/makecomplaint.dart';
+import 'package:users/pages/NavigatorPages/outstation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
 import '../../translations/translation.dart';
 import '../../widgets/widgets.dart';
 import '../NavigatorPages/editprofile.dart';
-import '../NavigatorPages/fav_address.dart';
 import '../NavigatorPages/history.dart';
-import '../NavigatorPages/makecomplaint.dart';
 import '../NavigatorPages/notification.dart';
-import '../NavigatorPages/outstation.dart';
 import '../NavigatorPages/referral.dart';
 import '../NavigatorPages/settings.dart';
 import '../NavigatorPages/sos.dart';
@@ -403,7 +405,6 @@ class _NavDrawerState extends State<NavDrawer> {
                                   Future.delayed(
                                       const Duration(microseconds: 500), () {
                                     Navigator.push(
-                                        // ignore: use_build_context_synchronously
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>

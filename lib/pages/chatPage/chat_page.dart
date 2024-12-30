@@ -157,23 +157,26 @@ class _ChatPageState extends State<ChatPage> {
                                                       color: (chatList[i][
                                                                   'from_type'] ==
                                                               1)
-                                                          ? buttonColor
+                                                          ? (isDarkTheme ==
+                                                                  true)
+                                                              ? const Color(
+                                                                  0xffE7EDEF)
+                                                              : Colors.black
                                                           : const Color(
                                                               0xffE7EDEF)),
                                                   child: MyText(
-                                                      text: chatList[i]
-                                                          ['message'],
-                                                      size: media.width *
-                                                          fourteen,
-                                                      color: (isDarkTheme ==
-                                                              true)
-                                                          ? Colors.black
-                                                          // : textColor,
-                                                          : (chatList[i][
-                                                                      'from_type'] ==
-                                                                  1)
-                                                              ? Colors.white
-                                                              : Colors.black),
+                                                    text: chatList[i]
+                                                        ['message'],
+                                                    size:
+                                                        media.width * fourteen,
+                                                    color: (chatList[i]
+                                                                ['from_type'] ==
+                                                            1)
+                                                        ? (isDarkTheme == true)
+                                                            ? Colors.black
+                                                            : Colors.white
+                                                        : Colors.black,
+                                                  ),
                                                 ),
                                                 SizedBox(
                                                   height: media.width * 0.015,

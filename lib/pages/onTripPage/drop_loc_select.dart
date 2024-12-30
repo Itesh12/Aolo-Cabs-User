@@ -272,7 +272,6 @@ class _DropLocationState extends State<DropLocation>
                                       // });
                                     },
                                     onCameraIdle: () async {
-                                      // if (addressList.isEmpty) {
                                       if (userDetails[
                                               'enable_map_location_icon_drag_and_drop_feature'] ==
                                           '0') {
@@ -386,7 +385,10 @@ class _DropLocationState extends State<DropLocation>
                                       fm.TileLayer(
                                         // minZoom: 10,
                                         urlTemplate:
-                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                            // 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                            (isDarkTheme == false)
+                                                ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                                : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
                                         userAgentPackageName: 'com.example.app',
                                       ),
                                       const fm.RichAttributionWidget(
@@ -470,37 +472,39 @@ class _DropLocationState extends State<DropLocation>
                               width: media.width * 0.07,
                               height: media.width * 0.08,
                             ),
-                            // if(userDetails['enable_map_location_icon_drag_and_drop_feature']=='0')
-                            // Row(
-                            //     mainAxisAlignment: MainAxisAlignment.center,
-                            //     children: [
-                            //       Button(
-                            //         width: media.width*0.5,
-                            //         onTap: () async {
-                            //           setState(() {
-                            //             _isLoading = true;
-                            //           });
-                            //           if (useMyAddress == false) {
-                            //               var val = await geoCoding(
-                            //                   _centerLocation.latitude,
-                            //                   _centerLocation.longitude);
-                            //               setState(() {
-                            //                 _center = _centerLocation;
-                            //                 dropAddressConfirmation = val;
-                            //                 _isLoading=false;
-                            //               });
-                            //             }
-                            //             if (useMyAddress == true) {
-                            //               setState(() {
-                            //                 useMyAddress = false;
-                            //               });
-                            //             }
-                            //         },
-                            //         text: languages[choosenLanguage]
-                            //             ['text_confirm'],
-                            //       ),
-                            //     ],
-                            //   ),
+                            if (userDetails[
+                                    'enable_map_location_icon_drag_and_drop_feature'] ==
+                                '0')
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Button(
+                                    width: media.width * 0.5,
+                                    onTap: () async {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+                                      if (useMyAddress == false) {
+                                        var val = await geoCoding(
+                                            _centerLocation.latitude,
+                                            _centerLocation.longitude);
+                                        setState(() {
+                                          _center = _centerLocation;
+                                          dropAddressConfirmation = val;
+                                          _isLoading = false;
+                                        });
+                                      }
+                                      if (useMyAddress == true) {
+                                        setState(() {
+                                          useMyAddress = false;
+                                        });
+                                      }
+                                    },
+                                    text: languages[choosenLanguage]
+                                        ['text_confirm'],
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       )),

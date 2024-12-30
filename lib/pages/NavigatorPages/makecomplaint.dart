@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:users/pages/NavigatorPages/makecomplaintdetails.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
 import '../../translations/translation.dart';
 import '../../widgets/widgets.dart';
 import '../noInternet/noInternet.dart';
-import 'makecomplaintdetails.dart';
 
 class MakeComplaint extends StatefulWidget {
   const MakeComplaint({super.key});

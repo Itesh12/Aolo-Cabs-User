@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, unused_local_variable
+// ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:io';
@@ -7,18 +7,18 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:users/functions/notifications.dart';
+import 'package:users/pages/onTripPage/invoice.dart';
+import 'package:users/pages/onTripPage/map_page.dart';
+import 'package:users/translations/translation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:users/pages/onTripPage/invoice.dart';
-import '../../functions/notifications.dart';
 import '../../styles/styles.dart';
 import '../../functions/functions.dart';
-import '../../translations/translation.dart';
 import '../../widgets/widgets.dart';
 import 'dart:math' as math;
 import '../loadingPage/loading.dart';
-import '../onTripPage/map_page.dart';
 import 'agreement.dart';
 
 class Login extends StatefulWidget {
@@ -1817,12 +1817,6 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                               .signInWithCredential(
                                                                   credential);
 
-                                                          String? bearerrrrr =
-                                                              await FirebaseAuth
-                                                                  .instance
-                                                                  .currentUser!
-                                                                  .getIdToken();
-
                                                           var verify =
                                                               await verifyUser(
                                                                   _email.text,
@@ -2317,12 +2311,6 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                             .instance
                                                             .signInWithCredential(
                                                                 credential);
-
-                                                        String? bearerrrrr =
-                                                            await FirebaseAuth
-                                                                .instance
-                                                                .currentUser!
-                                                                .getIdToken();
 
                                                         mobileVerified = true;
                                                         Navigator.push(

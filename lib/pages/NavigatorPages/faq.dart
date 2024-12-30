@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:users/pages/login/login.dart';
+import 'package:users/widgets/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
 import '../../functions/functions.dart';
 import '../../styles/styles.dart';
 import '../../translations/translation.dart';
-import '../../widgets/widgets.dart';
 import '../loadingPage/loading.dart';
-import '../login/login.dart';
 import '../noInternet/noInternet.dart';
 import '../onTripPage/map_page.dart';
 
